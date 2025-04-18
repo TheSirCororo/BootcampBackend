@@ -1,8 +1,14 @@
 package me.hawai.plugin
 
 import io.ktor.server.application.*
+import me.hawai.repo.matching.DatabaseMatchingScoreRepo
+import me.hawai.repo.matching.MatchingScoreRepo
+import me.hawai.repo.user.DatabaseUserRepo
+import me.hawai.repo.user.UserRepo
 import me.hawai.service.LlmService
+import me.hawai.service.MatchingScoreService
 import me.hawai.service.TelegramBotService
+import me.hawai.service.UserService
 import org.koin.core.context.stopKoin
 import org.koin.core.module.Module
 import org.koin.dsl.module
@@ -18,6 +24,10 @@ fun Application.configureKoin() {
             single<Application> { this@configureKoin }
             single<TelegramBotService> { TelegramBotService(get()) }
             single<LlmService> { LlmService(get()) }
+            single<UserRepo> { DatabaseUserRepo }
+            single<UserService> { UserService(get(), get()) }
+            single<MatchingScoreRepo> { DatabaseMatchingScoreRepo }
+            single<MatchingScoreService> { MatchingScoreService(get(), get()) }
         })
 
         modules(appModules)

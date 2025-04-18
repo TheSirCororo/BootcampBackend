@@ -80,7 +80,6 @@ class LlmService(private val application: Application, client: HttpClient? = nul
         bearerAuth(yandexApiKey)
         contentType(ContentType.Application.Json)
     }.also {
-        println(it.bodyAsText())
         if (!it.status.isSuccess()) {
             application.log.warn("Got status ${it.status}. Body is: ${it.bodyAsText()}")
         }

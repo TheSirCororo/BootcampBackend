@@ -22,7 +22,7 @@ fun main(args: Array<String>) {
 fun Application.module() {
     log.info("Starting application...")
 
-//    configureDatabase()
+    configureDatabase()
     configureKoin()
     configureNegotiation()
     configureCORS()
