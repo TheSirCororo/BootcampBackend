@@ -15,8 +15,8 @@ import org.koin.core.component.get
 
 @CommandHandler(["/match"])
 suspend fun matchCommand(tgUser: User, bot: TelegramBot) {
-    message { "Нажми на кнопку ниже, чтобы начать искать возможных сожителей:" }.inlineKeyboardMarkup {
-        callbackData("Твои сожители") { "match?page=0" }
+    message { "⬇\uFE0F Нажми на кнопку ниже, чтобы начать искать возможных сожителей:" }.inlineKeyboardMarkup {
+        callbackData("\uD83D\uDE46\u200D♂\uFE0F Твои сожители") { "match?page=0" }
     }.send(tgUser, bot)
 }
 
@@ -43,7 +43,7 @@ suspend fun match(
     }
 
     if (sortedUsers.isEmpty()) {
-        message { "Ты уже прочитал все анкеты! Возвращайся позже..." }.send(tgUser, bot)
+        message { "\uD83E\uDD72 Ты уже прочитал все анкеты! Возвращайся позже..." }.send(tgUser, bot)
         return@telegramApi
     }
 
@@ -54,12 +54,9 @@ suspend fun match(
 
     editMessageText(fromMessageId) {
         """
-Вот твой возможный сожитель:
+☘️ Вот твой возможный сожитель:
 
-Имя: ${matchedUser.name}
-Интересы: ${matchedUser.interests.trimIndent()}
-ВУЗ: ${matchedUser.university.trimIndent()}
-Текст анкеты: ${matchedUser.text.trimIndent()}
+${matchedUser.asView()}
 """.trimIndent()
     }.inlineKeyboardMarkup {
         callbackData("❤\uFE0F Нравится") { "like?id=${matchedUser.telegramId}" }
@@ -85,30 +82,34 @@ suspend fun like(id: String, tgUser: User, bot: TelegramBot, update: CallbackQue
 
     editMessageText(fromMessageId) {
         """
-Ты лайкнул своего возможного сожителя:
+🩷 Ты лайкнул своего возможного сожителя:
 
-Имя: ${matchedUser.name}
-Интересы: ${matchedUser.interests.trimIndent()}
-ВУЗ: ${matchedUser.university.trimIndent()}
-Текст анкеты: ${matchedUser.text.trimIndent()}
+${matchedUser.asView()}
 """.trimIndent()
     }.inlineKeyboardMarkup {
         callbackData("↪\uFE0F Следующий кандидат") { "match" }
     }.send(tgUser, bot)
 
     val anotherFormView = formViewService.getFormView(matchedUser.id, user.id)
+    val wasNotBothLike = anotherFormView == null || !anotherFormView.liked
+    val startMessage = if (wasNotBothLike) {
+        "\uD83D\uDD14 Дзынь-дзынь! Твою анкету лайкнул @${tgUser.username}."
+    } else {
+        "\uD83D\uDC20 Привет! У тебя взаимный лайк!"
+    }
 
     message {
         """
-Дзынь-дзынь! Твою анкету лайкнул @${tgUser.username}
+$startMessage
 
-Имя: ${user.name}
-Интересы: ${user.interests.trimIndent()}
-ВУЗ: ${user.university.trimIndent()}
-Текст анкеты: ${user.text.trimIndent()}
+${user.asView()}
         """.trimIndent()
     }.inlineKeyboardMarkup {
-        callbackData("❤\uFE0F Нравится") { "like?id=${matchedUser.telegramId}" }
+        if (wasNotBothLike) {
+            callbackData("❤\uFE0F Нравится") { "like?id=${user.telegramId}" }
+            br()
+            callbackData("\uD83D\uDEAB Игнорировать") { "start-callback" }
+        }
     }.send(matchedUser.telegramId, bot)
 
 }

@@ -15,6 +15,9 @@ services:
       SERVER_PORT: 8080
       TELEGRAM_BOT_TOKEN: ${TELEGRAM_BOT_TOKEN}
       TELEGRAM_BOT_ENABLED: ${TELEGRAM_BOT_ENABLED}
+      YANDEX_API_KEY: ${YANDEX_API_KEY}
+      YANDEX_MODEL_FOLDER: ${YANDEX_MODEL_FOLDER}
+      LLM_ENABLED: ${LLM_ENABLED}
   postgres:
     image: 'postgres:latest'
     environment:

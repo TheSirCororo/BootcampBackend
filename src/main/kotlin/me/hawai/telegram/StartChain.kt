@@ -19,7 +19,7 @@ object StartChain {
     object Name : BaseStatefulLink() {
 
         override suspend fun action(user: User, update: ProcessedUpdate, bot: TelegramBot): String {
-            message { "Введи свой вуз." }.send(user, bot)
+            message { "\uD83D\uDCDA Введи свой вуз." }.send(user, bot)
             return update.text
         }
     }
@@ -30,14 +30,14 @@ object StartChain {
             update: ProcessedUpdate,
             bot: TelegramBot
         ): String {
-            message { "Расскажи о своих интересах. Это может помочь при поиске подходящего сожителя." }.send(user, bot)
+            message { "⚾\uFE0F Расскажи о своих интересах. Это может помочь при поиске подходящего сожителя." }.send(user, bot)
             return update.text
         }
     }
 
     object Interests : BaseStatefulLink() {
         override suspend fun action(user: User, update: ProcessedUpdate, bot: TelegramBot): String {
-            message { "Введи текст своей анкеты." }.send(user, bot)
+            message { "\uD83D\uDDD2 Введи текст своей анкеты." }.send(user, bot)
             return update.text
         }
     }
@@ -67,12 +67,13 @@ object StartChain {
 
             if (user == null) {
                 userService.createUser(tgUser.id, name, interests, university, text)
-                message { "Успешная регистрация! Чтобы изменить анкету, введи /modify" }.send(tgUser, bot)
+                message { "✅ Успешная регистрация! Чтобы изменить анкету, введи /modify" }.send(tgUser, bot)
             } else {
                 userService.save(user.copy(university = university, text = text))
-                message { "Анкета успешно изменена!" }.send(tgUser, bot)
+                message { "✅ Анкета успешно изменена!" }.send(tgUser, bot)
             }
 
+            start(tgUser, bot)
         }
 
     }
