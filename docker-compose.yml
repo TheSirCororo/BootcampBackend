@@ -33,6 +33,3 @@ services:
       - db-data:/var/lib/postgresql/data
 volumes:
   db-data:
-  ad-images:
-  grafana-storage:
-  prometheus-storage:
