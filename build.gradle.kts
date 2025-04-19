@@ -51,6 +51,16 @@ dependencies {
     implementation("com.sksamuel.aedile:aedile-core:2.0.3") // кэширование
     implementation("com.zaxxer:HikariCP:6.2.1")
     implementation("io.ktor:ktor-client-cio-jvm:3.0.3")
+    implementation(platform("software.amazon.awssdk:bom:2.30.21")) // S3
+    implementation("software.amazon.awssdk:s3") {
+        exclude("software.amazon.awssdk:netty-nio-client")
+        exclude("software.amazon.awssdk:apache-client")
+    }
+    implementation("software.amazon.awssdk:sso")
+    implementation("software.amazon.awssdk:ssooidc")
+    implementation("software.amazon.awssdk:apache-client") {
+        exclude("commons-logging:commons-logging")
+    }
     testImplementation(kotlin("test")) // тестирование
     testImplementation("io.ktor:ktor-server-test-host")
     testImplementation("io.ktor:ktor-client-content-negotiation")

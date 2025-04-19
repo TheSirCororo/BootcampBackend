@@ -8,5 +8,6 @@ data class User(
     val name: String,
     val university: String,
     val text: String,
-    val interests: String
+    val interests: String,
+    val photoId: UUID?
 )

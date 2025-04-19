@@ -3,12 +3,16 @@ package me.hawai.telegram
 import eu.vendeli.tgbot.TelegramBot
 import eu.vendeli.tgbot.annotations.CommandHandler
 import eu.vendeli.tgbot.api.answer.answerCallbackQuery
-import eu.vendeli.tgbot.api.message.editMessageText
+import eu.vendeli.tgbot.api.media.photo
+import eu.vendeli.tgbot.api.message.deleteMessage
 import eu.vendeli.tgbot.api.message.message
 import eu.vendeli.tgbot.types.User
 import eu.vendeli.tgbot.types.internal.CallbackQueryUpdate
+import eu.vendeli.tgbot.types.internal.ImplicitFile
+import eu.vendeli.tgbot.utils.toInputFile
 import me.hawai.inject.telegramApi
 import me.hawai.service.FormViewService
+import me.hawai.service.ImageService
 import me.hawai.service.MatchingScoreService
 import me.hawai.service.UserService
 import org.koin.core.component.get
@@ -29,6 +33,7 @@ suspend fun match(
     val userService = get<UserService>()
     val matchService = get<MatchingScoreService>()
     val formViewService = get<FormViewService>()
+    val imageService = get<ImageService>()
 
     val fromMessageId = update.callbackQuery.message?.messageId
     if (fromMessageId == null) return@telegramApi
@@ -52,17 +57,29 @@ suspend fun match(
 
     formViewService.markAsViewed(user.id, matchedUserId)
 
-    editMessageText(fromMessageId) {
-        """
+    deleteMessage(fromMessageId).send(tgUser, bot)
+
+    val text = """
 ☘️ Вот твой возможный сожитель:
 
 ${matchedUser.asView()}
 """.trimIndent()
-    }.inlineKeyboardMarkup {
-        callbackData("❤\uFE0F Нравится") { "like?id=${matchedUser.telegramId}" }
-        br()
-        callbackData("↪\uFE0F Следующий кандидат") { "match" }
-    }.send(tgUser, bot)
+    if (matchedUser.photoId == null) {
+        message { text }.inlineKeyboardMarkup {
+            callbackData("❤\uFE0F Нравится") { "like?id=${matchedUser.telegramId}" }
+            br()
+            callbackData("↪\uFE0F Следующий кандидат") { "match" }
+        }.send(tgUser, bot)
+    } else {
+        val imageData = imageService.loadImageBytes(matchedUser.photoId) ?: return@telegramApi
+
+        photo(ImplicitFile.InpFile(imageData.toInputFile("image.jpg", "image/jpeg"))).caption { text }
+            .inlineKeyboardMarkup {
+                callbackData("❤\uFE0F Нравится") { "like?id=${matchedUser.telegramId}" }
+                br()
+                callbackData("↪\uFE0F Следующий кандидат") { "match" }
+            }.send(tgUser, bot)
+    }
 }
 
 @CommandHandler.CallbackQuery(["like"])
@@ -80,15 +97,27 @@ suspend fun like(id: String, tgUser: User, bot: TelegramBot, update: CallbackQue
 
     formViewService.markAsLiked(user.id, matchedUser.id)
 
-    editMessageText(fromMessageId) {
+    deleteMessage(fromMessageId).send(tgUser, bot)
+    val text =
         """
 🩷 Ты лайкнул своего возможного сожителя:
 
 ${matchedUser.asView()}
 """.trimIndent()
-    }.inlineKeyboardMarkup {
-        callbackData("↪\uFE0F Следующий кандидат") { "match" }
-    }.send(tgUser, bot)
+
+    val photoId = matchedUser.photoId
+    if (photoId != null) {
+        val imageService = get<ImageService>()
+        val imageData = imageService.loadImageBytes(matchedUser.photoId) ?: return@telegramApi
+
+        photo(ImplicitFile.InpFile(imageData.toInputFile("image.jpg", "image/jpeg"))).caption { text }.inlineKeyboardMarkup {
+            callbackData("↪\uFE0F Следующий кандидат") { "match" }
+        }.send(tgUser, bot)
+    } else {
+        message { text }.inlineKeyboardMarkup {
+            callbackData("↪\uFE0F Следующий кандидат") { "match" }
+        }.send(tgUser, bot)
+    }
 
     val anotherFormView = formViewService.getFormView(matchedUser.id, user.id)
     val wasNotBothLike = anotherFormView == null || !anotherFormView.liked
@@ -98,18 +127,32 @@ ${matchedUser.asView()}
         "\uD83D\uDC20 Привет! У тебя взаимный лайк!"
     }
 
-    message {
-        """
+    val secondText = """
 $startMessage
 
 ${user.asView()}
-        """.trimIndent()
-    }.inlineKeyboardMarkup {
-        if (wasNotBothLike) {
-            callbackData("❤\uFE0F Нравится") { "like?id=${user.telegramId}" }
-            br()
-            callbackData("\uD83D\uDEAB Игнорировать") { "start-callback" }
-        }
-    }.send(matchedUser.telegramId, bot)
+""".trimIndent()
+
+    if (user.photoId != null) {
+        val imageService = get<ImageService>()
+        val imageData = imageService.loadImageBytes(user.photoId) ?: return@telegramApi
+        photo(ImplicitFile.InpFile(imageData.toInputFile("image.jpg", "image/jpeg"))).caption { text }
+            .inlineKeyboardMarkup {
+                if (wasNotBothLike) {
+                    callbackData("❤\uFE0F Нравится") { "like?id=${user.telegramId}" }
+                    br()
+                    callbackData("\uD83D\uDEAB Игнорировать") { "start-callback" }
+                }
+            }.send(matchedUser.telegramId, bot)
+    } else {
+       message { text }
+            .inlineKeyboardMarkup {
+                if (wasNotBothLike) {
+                    callbackData("❤\uFE0F Нравится") { "like?id=${user.telegramId}" }
+                    br()
+                    callbackData("\uD83D\uDEAB Игнорировать") { "start-callback" }
+                }
+            }.send(matchedUser.telegramId, bot)
+    }
 
 }

@@ -21,7 +21,8 @@ object DatabaseUserRepo : UserRepo {
                 it[UserTable.name],
                 it[UserTable.university],
                 it[UserTable.text],
-                it[UserTable.interests]
+                it[UserTable.interests],
+                it[UserTable.photoId]?.value
             )
         }
     }
@@ -32,12 +33,14 @@ object DatabaseUserRepo : UserRepo {
             it[UserTable.text] = entity.text
             it[UserTable.interests] = entity.interests
             it[UserTable.name] = entity.name
+            it[UserTable.photoId] = entity.photoId
         }) {
             it[telegramId] = entity.telegramId
             it[university] = entity.university
             it[text] = entity.text
             it[interests] = entity.interests
             it[name] = entity.name
+            it[photoId] = entity.photoId
         }
     }
 
@@ -59,7 +62,8 @@ object DatabaseUserRepo : UserRepo {
                 it[UserTable.name],
                 it[UserTable.university],
                 it[UserTable.text],
-                it[UserTable.interests]
+                it[UserTable.interests],
+                it[UserTable.photoId]?.value
             )
         }
     }
@@ -72,7 +76,8 @@ object DatabaseUserRepo : UserRepo {
                 it[UserTable.name],
                 it[UserTable.university],
                 it[UserTable.text],
-                it[UserTable.interests]
+                it[UserTable.interests],
+                it[UserTable.photoId]?.value
             )
         }
     }

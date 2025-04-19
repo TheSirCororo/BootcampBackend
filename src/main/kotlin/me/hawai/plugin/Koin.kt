@@ -1,6 +1,8 @@
 package me.hawai.plugin
 
 import io.ktor.server.application.*
+import me.hawai.repo.image.DatabaseImageRepo
+import me.hawai.repo.image.ImageRepo
 import me.hawai.repo.matching.DatabaseMatchingScoreRepo
 import me.hawai.repo.matching.MatchingScoreRepo
 import me.hawai.repo.user.DatabaseUserRepo
@@ -8,9 +10,11 @@ import me.hawai.repo.user.UserRepo
 import me.hawai.repo.view.DatabaseFormViewRepo
 import me.hawai.repo.view.FormViewRepo
 import me.hawai.service.FormViewService
+import me.hawai.service.ImageService
 import me.hawai.service.LlmService
 import me.hawai.service.MatchingScoreService
 import me.hawai.service.ModerationService
+import me.hawai.service.S3Service
 import me.hawai.service.TelegramBotService
 import me.hawai.service.UserService
 import org.koin.core.context.stopKoin
@@ -35,6 +39,9 @@ fun Application.configureKoin() {
             single<ModerationService> { ModerationService(get()) }
             single<FormViewRepo> { DatabaseFormViewRepo }
             single<FormViewService> { FormViewService(get(), get()) }
+            single<ImageRepo> { DatabaseImageRepo }
+            single<S3Service> { S3Service(get()) }
+            single<ImageService> { ImageService(get(), get()) }
         })
 
         modules(appModules)
