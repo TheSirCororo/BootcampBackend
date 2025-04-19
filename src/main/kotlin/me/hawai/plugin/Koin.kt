@@ -5,8 +5,12 @@ import me.hawai.repo.matching.DatabaseMatchingScoreRepo
 import me.hawai.repo.matching.MatchingScoreRepo
 import me.hawai.repo.user.DatabaseUserRepo
 import me.hawai.repo.user.UserRepo
+import me.hawai.repo.view.DatabaseFormViewRepo
+import me.hawai.repo.view.FormViewRepo
+import me.hawai.service.FormViewService
 import me.hawai.service.LlmService
 import me.hawai.service.MatchingScoreService
+import me.hawai.service.ModerationService
 import me.hawai.service.TelegramBotService
 import me.hawai.service.UserService
 import org.koin.core.context.stopKoin
@@ -28,6 +32,9 @@ fun Application.configureKoin() {
             single<UserService> { UserService(get(), get()) }
             single<MatchingScoreRepo> { DatabaseMatchingScoreRepo }
             single<MatchingScoreService> { MatchingScoreService(get(), get()) }
+            single<ModerationService> { ModerationService(get()) }
+            single<FormViewRepo> { DatabaseFormViewRepo }
+            single<FormViewService> { FormViewService(get(), get()) }
         })
 
         modules(appModules)

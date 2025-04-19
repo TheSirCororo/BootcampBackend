@@ -6,6 +6,7 @@ import io.ktor.server.application.*
 import io.ktor.server.config.*
 import me.hawai.repo.matching.MatchingScoreTable
 import me.hawai.repo.user.UserTable
+import me.hawai.repo.view.FormViewTable
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransaction
 import org.jetbrains.exposed.sql.transactions.transaction
@@ -28,7 +29,7 @@ fun Application.configureDatabase() {
 
     transaction {
         addLogger(StdOutSqlLogger)
-        SchemaUtils.create(UserTable, MatchingScoreTable)
+        SchemaUtils.create(UserTable, MatchingScoreTable, FormViewTable)
     }
 
     monitor.subscribe(ApplicationStopped) {

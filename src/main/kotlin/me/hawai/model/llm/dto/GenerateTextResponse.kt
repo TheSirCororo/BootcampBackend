@@ -14,7 +14,8 @@ data class GenerateTextResponse(
 
     @Serializable
     data class Alternative(
-        val message: Message
+        val message: Message,
+        val status: String
     )
 
     @Serializable

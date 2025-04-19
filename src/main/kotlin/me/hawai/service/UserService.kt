@@ -9,8 +9,12 @@ class UserService(private val userRepo: UserRepo, private val matchingScoreServi
 
     suspend fun getUserById(id: UUID) = userRepo.get(id)
 
-    suspend fun createUser(telegramId: Long, university: String, text: String) =
-        userRepo.createNewUser(telegramId, text, university)
+    suspend fun createUser(telegramId: Long, name: String, interests: String, university: String, text: String) =
+        userRepo.createNewUser(telegramId, name, interests, university, text).also {
+            val user = getUser(telegramId) ?: return@also
+            val otherUsers = userRepo.getAll().filter { it.telegramId != user.telegramId }
+            matchingScoreService.matchUsers(user, otherUsers)
+        }
 
     suspend fun save(user: User) = userRepo.save(user).also {
         val otherUsers = userRepo.getAll().filter { it.telegramId != user.telegramId }

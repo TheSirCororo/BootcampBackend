@@ -7,4 +7,4 @@ class ApiRoute : KoinComponent
 
 fun <T : Route> T.api(configure: T.(ApiRoute) -> Unit) = configure(ApiRoute())
 
-suspend fun telegramApi(configure: suspend ApiRoute.() -> Unit) = configure(ApiRoute())
+suspend fun <R> telegramApi(configure: suspend ApiRoute.() -> R): R = configure(ApiRoute())

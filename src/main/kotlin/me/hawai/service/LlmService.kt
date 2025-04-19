@@ -75,14 +75,18 @@ class LlmService(private val application: Application, client: HttpClient? = nul
 
     fun isActive() = llmEnabled
 
-    suspend fun prompt(text: String) = this@LlmService.client.post(yandexBaseUrl) {
-        setBody(GenerateTextRequest(yandexModelUri, GenerateTextRequest.CompletionOptions(0.3), listOf(GenerateTextRequest.Message(role = "user", text = text))))
+    suspend fun prompt(vararg text: String) = this@LlmService.client.post(yandexBaseUrl) {
+        setBody(GenerateTextRequest(yandexModelUri, GenerateTextRequest.CompletionOptions(0.3), text.map { GenerateTextRequest.Message(role = "system", text = it) }))
         bearerAuth(yandexApiKey)
         contentType(ContentType.Application.Json)
     }.also {
+        println(it.bodyAsText())
         if (!it.status.isSuccess()) {
             application.log.warn("Got status ${it.status}. Body is: ${it.bodyAsText()}")
         }
-    }.body<GenerateTextResponse>().result.alternatives.first().message.text
+    }.body<GenerateTextResponse>().result.alternatives.first().let {
+        if (it.status == "ALTERNATIVE_STATUS_CONTENT_FILTER") null
+        else it.message.text
+    }
 
 }

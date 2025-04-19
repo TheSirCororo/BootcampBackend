@@ -6,4 +6,6 @@ object UserTable : UUIDTable("users") {
     val telegramId = long("telegram_id").uniqueIndex()
     val university = varchar("university", 250)
     val text = largeText("text")
+    val interests = largeText("interests")
+    val name = varchar("name", 64)
 }

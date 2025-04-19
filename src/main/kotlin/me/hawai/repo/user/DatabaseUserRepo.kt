@@ -18,8 +18,10 @@ object DatabaseUserRepo : UserRepo {
             User(
                 it[UserTable.id].value,
                 it[UserTable.telegramId],
+                it[UserTable.name],
                 it[UserTable.university],
-                it[UserTable.text]
+                it[UserTable.text],
+                it[UserTable.interests]
             )
         }
     }
@@ -28,10 +30,14 @@ object DatabaseUserRepo : UserRepo {
         UserTable.upsert(UserTable.telegramId, onUpdate = {
             it[UserTable.university] = entity.university
             it[UserTable.text] = entity.text
+            it[UserTable.interests] = entity.interests
+            it[UserTable.name] = entity.name
         }) {
             it[telegramId] = entity.telegramId
             it[university] = entity.university
             it[text] = entity.text
+            it[interests] = entity.interests
+            it[name] = entity.name
         }
     }
 
@@ -50,8 +56,10 @@ object DatabaseUserRepo : UserRepo {
             User(
                 it[UserTable.id].value,
                 it[UserTable.telegramId],
+                it[UserTable.name],
                 it[UserTable.university],
-                it[UserTable.text]
+                it[UserTable.text],
+                it[UserTable.interests]
             )
         }
     }
@@ -61,8 +69,10 @@ object DatabaseUserRepo : UserRepo {
             User(
                 it[UserTable.id].value,
                 it[UserTable.telegramId],
+                it[UserTable.name],
                 it[UserTable.university],
-                it[UserTable.text]
+                it[UserTable.text],
+                it[UserTable.interests]
             )
         }
     }
